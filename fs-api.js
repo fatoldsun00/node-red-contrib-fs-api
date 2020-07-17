@@ -144,7 +144,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-move", MoveNode);
+    RED.nodes.registerType("fs-api-move", MoveNode);
 
 
 
@@ -261,7 +261,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-copy", CopyNode);
+    RED.nodes.registerType("fs-api-copy", CopyNode);
 
 
     function DeleteNode(n) {
@@ -321,7 +321,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-delete", DeleteNode);
+    RED.nodes.registerType("fs-api-delete", DeleteNode);
 
 
     function AccessNode(n) {
@@ -364,7 +364,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-access", AccessNode);
+    RED.nodes.registerType("fs-api-access", AccessNode);
 
 
     function SizeNode(n) {
@@ -412,7 +412,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-size", SizeNode);
+    RED.nodes.registerType("fs-api-size", SizeNode);
 
     function StatsNode(n) {
         RED.nodes.createNode(this,n);
@@ -459,7 +459,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-stats", StatsNode);
+    RED.nodes.registerType("fs-api-stats", StatsNode);
 
     function LinkNode(n) {
         RED.nodes.createNode(this,n);
@@ -519,7 +519,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-link", LinkNode);
+    RED.nodes.registerType("fs-api-link", LinkNode);
 
 
     function TypeNode(n) {
@@ -576,7 +576,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-type", TypeNode);
+    RED.nodes.registerType("fs-api-type", TypeNode);
 
 
 
@@ -622,7 +622,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-dir", DirNode);
+    RED.nodes.registerType("fs-api-dir", DirNode);
 
     function MkdirNode(n) {
         RED.nodes.createNode(this,n);
@@ -666,7 +666,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-mkdir", MkdirNode);
+    RED.nodes.registerType("fs-api-mkdir", MkdirNode);
 
     function MktmpdirNode(n) {
         RED.nodes.createNode(this,n);
@@ -710,7 +710,7 @@ module.exports = function(RED) {
         });
     }
 
-    RED.nodes.registerType("fs-ops-mktmpdir", MktmpdirNode);
+    RED.nodes.registerType("fs-api-mktmpdir", MktmpdirNode);
 
 };
 
