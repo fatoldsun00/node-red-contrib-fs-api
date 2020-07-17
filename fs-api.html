@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-move',{
+    RED.nodes.registerType('fs-api-move',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -61,7 +61,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-move">
+<script type="text/x-red" data-template-name="fs-api-move">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -93,7 +93,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-move">
+<script type="text/x-red" data-help-name="fs-api-move">
 
     <p>Move or rename a file in the local filesystem.</p>
 
@@ -134,7 +134,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-copy',{
+    RED.nodes.registerType('fs-api-copy',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -197,7 +197,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-copy">
+<script type="text/x-red" data-template-name="fs-api-copy">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -233,7 +233,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-copy">
+<script type="text/x-red" data-help-name="fs-api-copy">
     <p>Copies or links a file from the source to the destination.</p>
 
     <h3>Properties</h3>
@@ -273,7 +273,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-delete',{
+    RED.nodes.registerType('fs-api-delete',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -312,7 +312,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-delete">
+<script type="text/x-red" data-template-name="fs-api-delete">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -329,7 +329,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-delete">
+<script type="text/x-red" data-help-name="fs-api-delete">
     <p>Deletes a file on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -361,7 +361,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-access',{
+    RED.nodes.registerType('fs-api-access',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -405,7 +405,7 @@
 
 
 
-<script type="text/x-red" data-template-name="fs-ops-access">
+<script type="text/x-red" data-template-name="fs-api-access">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -433,7 +433,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-access">
+<script type="text/x-red" data-help-name="fs-api-access">
     <p>Tests if a file is accessible on the host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -468,7 +468,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-size',{
+    RED.nodes.registerType('fs-api-size',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -518,7 +518,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-size">
+<script type="text/x-red" data-template-name="fs-api-size">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -540,7 +540,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-size">
+<script type="text/x-red" data-help-name="fs-api-size">
     <p>Determines the size of a file on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -566,13 +566,13 @@
 
     <h3>Details</h3>
     <p>File size is added in the specified property. If passed an array of
-    filenames, like from fs-ops-dir, node will add an array of corresponding
+    filenames, like from fs-api-dir, node will add an array of corresponding
     file sizes.</p>
     <p>Error is thrown and message dropped if size cannot be determined.</p>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-stats',{
+    RED.nodes.registerType('fs-api-stats',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -622,7 +622,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-stats">
+<script type="text/x-red" data-template-name="fs-api-stats">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -644,7 +644,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-stats">
+<script type="text/x-red" data-help-name="fs-api-stats">
     <p>Returns the stats of a file on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -671,13 +671,13 @@
     <h3>Details</h3>
     <p><a href="https://nodejs.org/docs/latest-v11.x/api/fs.html#fs_class_fs_stats">File stats object</a> 
     is added in the specified property. If passed an array of
-    filenames, like from fs-ops-dir, node will add an array of corresponding
+    filenames, like from fs-api-dir, node will add an array of corresponding
     file stats.</p>
     <p>Error is thrown and message dropped if stats cannot be determined.</p>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-link',{
+    RED.nodes.registerType('fs-api-link',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -727,7 +727,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-link">
+<script type="text/x-red" data-template-name="fs-api-link">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -749,7 +749,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-link">
+<script type="text/x-red" data-help-name="fs-api-link">
     <p>Determines if a file on host filesystem is a link and returns the file it links to.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -775,14 +775,14 @@
 
     <h3>Details</h3>
     <p>File linked is added in the specified property. If passed an array of
-    filenames, like from fs-ops-dir, node will add an array of corresponding
+    filenames, like from fs-api-dir, node will add an array of corresponding
     file links. If the file is not a link, the returned property will be an empty string.</p>
     <p>Error is thrown and message dropped if link cannot be determined.</p>
 </script>
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-type',{
+    RED.nodes.registerType('fs-api-type',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -832,7 +832,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-type">
+<script type="text/x-red" data-template-name="fs-api-type">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -854,7 +854,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-type">
+<script type="text/x-red" data-help-name="fs-api-type">
     <p>Determines the type of a file on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -880,7 +880,7 @@
 
     <h3>Details</h3>
     <p>File type is added in the specified property. If passed an array of
-    filenames, like from fs-ops-dir, node will add an array of corresponding
+    filenames, like from fs-api-dir, node will add an array of corresponding
     file types.</p>
     <p>Types are:
     <ul><li>F - Regular file</li>
@@ -895,7 +895,7 @@
 
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-dir',{
+    RED.nodes.registerType('fs-api-dir',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -945,7 +945,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-dir">
+<script type="text/x-red" data-template-name="fs-api-dir">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -967,7 +967,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-dir">
+<script type="text/x-red" data-help-name="fs-api-dir">
     <p>Lists the files in a directory on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -999,7 +999,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-mkdir',{
+    RED.nodes.registerType('fs-api-mkdir',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -1050,7 +1050,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-mkdir">
+<script type="text/x-red" data-template-name="fs-api-mkdir">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -1076,7 +1076,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-mkdir">
+<script type="text/x-red" data-help-name="fs-api-mkdir">
     <p>Makes a directory on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -1108,7 +1108,7 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('fs-ops-mktmpdir',{
+    RED.nodes.registerType('fs-api-mktmpdir',{
         category: 'storage',
         color: '#767432',
         defaults: {
@@ -1159,7 +1159,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-ops-mktmpdir">
+<script type="text/x-red" data-template-name="fs-api-mktmpdir">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -1181,7 +1181,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-ops-mktmpdir">
+<script type="text/x-red" data-help-name="fs-api-mktmpdir">
     <p>Creates a new temporary directory on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
