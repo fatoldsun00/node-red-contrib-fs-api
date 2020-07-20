@@ -20,9 +20,10 @@
  * SOFTWARE.
  **/
 
-const util = require('util');
+//const util = require('util');
 const fs = require('fs');
 const path = require('path');
+const { send } = require('process');
 
 
 module.exports = function(RED) {
@@ -44,103 +45,75 @@ module.exports = function(RED) {
         var node = this;
 
         node.name = n.name;
-        node.sourcePath = n.sourcePath || "";
-        node.sourcePathType = n.sourcePathType || "str";
-        node.sourceFilename = n.sourceFilename || "";
-        node.sourceFilenameType = n.sourceFilenameType || "str";
-        node.destPath = n.destPath || "";
-        node.destPathType = n.destPathType || "str";
-        node.destFilename = n.destFilename || "";
-        node.destFilenameType = n.destFilenameType || "str";
-        node.link = n.link;
+        node.source = n.source || "";
+        node.sourceType = n.sourceType || "msg";
+        //node.sourceFilename = n.sourceFilename || "";
+        //node.sourceFilenameType = n.sourceFilenameType || "str";
+        node.destination = n.destination || "";
+        node.destinationType = n.destinationType || "msg";
+        //node.destFilename = n.destFilename || "";
+        //node.destFilenameType = n.destFilenameType || "str";
 
-        if (node.link === undefined) node.link = false;
-
-        node.on("input", function(msg) {
-
-            var source = RED.util.evaluateNodeProperty(node.sourcePath, node.sourcePathType, node, msg);
-            if ((source.length > 0) && (source.lastIndexOf(path.sep) != source.length-1)) {
-                source += path.sep;
-            }
-            source += RED.util.evaluateNodeProperty(node.sourceFilename, node.sourceFilenameType, node, msg);
-
-            var destPath = RED.util.evaluateNodeProperty(node.destPath, node.destPathType, node, msg);
-            var destFile = destPath;
-            if ((destFile.length > 0) && (destFile.lastIndexOf(path.sep) != destFile.length-1)) {
-                destFile += path.sep;
-            }
-            destFile += RED.util.evaluateNodeProperty(node.destFilename, node.destFilenameType, node, msg);
-
-            if (node.link) {
-                try {
-                    fs.unlinkSync(destFile);
-                } catch (err) {
-                    if (err.code === 'EISDIR') {
-                        // rmdir instead
-                        try {
-                            fs.rmdirSync(destFile);
-                        } catch (ed) {
-                            if (ed.code != 'ENOENT') {
-                                // deleting non-existent directory is OK
-                                node.error(ed, msg);
-                                return;
-                            }
-                        }
-                    } else if (err.code != 'ENOENT') {
-                        // Deleting a non-existent file is not an error
-                        node.error(err, msg);
-                        return;
-                    }
-                }
-
-                fs.symlink(source,destFile, (err) => {
-                    if (err) {
-                        node.error(err, msg);
-                    } else {
-                        node.send(msg);
-                    }
+        node.on("input",async function(msg,send,done) {
+            const source = RED.util.evaluateNodeProperty(node.source, node.sourceType, node, msg);
+            const destination = RED.util.evaluateNodeProperty(node.destination, node.destinationType, node, msg);
+            try {
+                node.status({
+                    fill: "yellow",
+                    shape: "dot",
+                    text: `Moving ...`
                 });
-                return;
-            } else {
+                fs.renameSync(source, destination);
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: `Moving done`
+                });
+                send(msg)
+                done()
+            } catch (err) {
                 try {
-                    fs.renameSync(source, destFile);
-                } catch (e) {
-                    if (e.code === 'EXDEV') {
-                        // Cross devices move - need to copy and delete
-                        try {
-                            // fs.pipe doesn't seem to handle exceptions properly
-                            // Need to check we can access files
-                            fs.accessSync(source, fs.R_OK | fs.W_OK);
-                            fs.accessSync(destPath, fs.W_OK);
-                            var is = fs.createReadStream(source);
-                            var os = fs.createWriteStream(destFile);
-                            is.on('end', function() {
-                                try {
-                                    fs.unlinkSync(source);
-                                } catch (e) {
-                                    node.error(e, msg);
-                                    return;
-                                }
-                                node.send(msg);
-                            });
+                    if (err.code === 'EXDEV') {
+                        // fs.pipe doesn't seem to handle exceptions properly
+                        // Need to check we can access files
+                        fs.accessSync(source, fs.R_OK | fs.W_OK);
+                        const is = await fs.createReadStream(source);
+                        const os = await fs.createWriteStream(destination);
+                        is.pipe(os);
+                        fs.accessSync(destination, fs.W_OK);
 
-                            is.pipe(os);
-                            return;
-
-                        } catch (e) {
-                            node.error(e, msg);
-                            return;
-                        }
-
+                        is.on('end', function() {
+                            try {
+                                //delete source file
+                                fs.unlinkSync(source);
+                                node.status({
+                                    fill: "green",
+                                    shape: "dot",
+                                    text: `Moving done`
+                                });
+                                send(msg);
+                                done()
+                            } catch (err) {
+                                node.status({
+                                    fill: "red",
+                                    shape: "dot",
+                                    text: `Error ${err.code ? err.code: ''} on moving file`
+                                });
+                                done(err);
+                            }
+                        });
                     } else {
-                        node.error(e, msg);
-                        return;
+                        throw err 
                     }
+                } catch (err) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: `Error ${err.code ? err.code: ''} on moving file`
+                    });
+                    done(err);
                 }
-                node.send(msg);
             }
-
-
         });
     }
 
@@ -153,111 +126,105 @@ module.exports = function(RED) {
         var node = this;
 
         node.name = n.name;
-        node.sourcePath = n.sourcePath || "";
-        node.sourcePathType = n.sourcePathType || "str";
-        node.sourceFilename = n.sourceFilename || "";
-        node.sourceFilenameType = n.sourceFilenameType || "str";
-        node.destPath = n.destPath || "";
-        node.destPathType = n.destPathType || "str";
-        node.destFilename = n.destFilename || "";
-        node.destFilenameType = n.destFilenameType || "str";
+        node.source = n.source || "";
+        node.sourceType = n.sourceType || "msg";
+       
+        node.destination = n.destination || "";
+        node.destinationType = n.destinationType || "msg";
+       
         node.link = n.link;
         node.overwrite = n.overwrite;
 
         if (node.link === undefined) node.link = false;
         if (node.overwrite === undefined) node.overwrite = false;
 
-        node.on("input", function(msg) {
+        node.on("input", async function(msg,send,done) {
 
-            var source = RED.util.evaluateNodeProperty(node.sourcePath, node.sourcePathType, node, msg);
-            if ((source.length > 0) && (source.lastIndexOf(path.sep) != source.length-1)) {
-                source += path.sep;
-            }
-            source += RED.util.evaluateNodeProperty(node.sourceFilename, node.sourceFilenameType, node, msg);
-
-            var destPath = RED.util.evaluateNodeProperty(node.destPath, node.destPathType, node, msg);
-            var destFile = destPath;
-            if ((destFile.length > 0) && (destFile.lastIndexOf(path.sep) != destFile.length-1)) {
-                destFile += path.sep;
-            }
-            destFile += RED.util.evaluateNodeProperty(node.destFilename, node.destFilenameType, node, msg);
-
-            if (node.link) {
-                if (node.overwrite) {
-                    try {
-                        fs.unlinkSync(destFile);
-                    } catch (err) {
-                        if (err.code === 'EISDIR') {
-                            // rmdir instead
-                            try {
-                                fs.rmdirSync(destFile);
-                            } catch (ed) {
-                                if (ed.code != 'ENOENT') {
-                                    // deleting non-existent directory is OK
-                                    node.error(ed, msg);
-                                    return;
+            const source = RED.util.evaluateNodeProperty(node.source, node.sourceType, node, msg);
+            const destination = RED.util.evaluateNodeProperty(node.destination, node.destinationType, node, msg);
+            try {
+                node.status({
+                    fill: "yellow",
+                    shape: "dot",
+                    text: `Copy ...`
+                });
+                if (node.link) {
+                    if (node.overwrite) {
+                        try {
+                            fs.unlinkSync(destination);
+                        } catch (err) {
+                            if (err.code === 'EISDIR') {
+                                // rmdir instead
+                                try {
+                                    fs.rmdirSync(destination);
+                                } catch (err) {
+                                    if (err.code != 'ENOENT') {
+                                        // deleting non-existent directory is OK
+                                        throw err
+                                    }
                                 }
+                            } else if (err.code != 'ENOENT') {
+                                // Deleting a non-existent file is not an error
+                                throw err
                             }
-                        } else if (err.code != 'ENOENT') {
-                            // Deleting a non-existent file is not an error
-                            node.error(err, msg);
-                            return;
                         }
                     }
-                }
-
-
-                fs.symlink(source,destFile, (err) => {
-                    if (err) {
-                        node.error(err, msg);
-                    } else {
-                        node.send(msg);
-                    }
-                });
-            } else {
-                if (fs.copyFile) {
-                    // fs.copyFile introduced in Node 8.5.0
-                    fs.copyFile(source, destFile, (node.overwrite ? 0 : fs.constants.COPYFILE_EXCL), (err) => {
+    
+    
+                    fs.symlink(source,destination, (err) => {
                         if (err) {
-                            node.error(err, msg);
+                            throw err
                         } else {
-                            node.send(msg);
+                            send(msg);
+                            done();
                         }
                     });
                 } else {
-                    if (!node.overwrite) {
+                    if (fs.copyFileSync) {
+                        // fs.copyFile introduced in Node 8.5.0
                         try {
-                            fs.accessSync(destFile, fs.F_OK);
-                            node.error("File exists", msg);
-                            return;
-                        } catch(e) {
-                            // All good - file doesn't exist
+                            await fs.copyFileSync(source, destination, (node.overwrite ? 0 : fs.constants.COPYFILE_EXCL))
+                            send(msg)
+                        } catch (err) {
+                            throw err
+                        }
+                        
+                    } else {
+                        try {
+                            //If not overwrite and file exist
+                            if (!node.overwrite && fs.accessSync(destination, fs.F_OK)) throw new Error ("File exists")
+
+                            // is.pipe doesn't seem to handle exceptions properly
+                            // Need to check we can access files
+                            fs.accessSync(source, fs.R_OK);
+                            fs.accessSync(destination, fs.W_OK);
+    
+                            const is = fs.createReadStream(source);
+                            const os = fs.createWriteStream(destination);
+                            is.on('end', function() {
+                                send(msg)
+                                done()
+                            });
+    
+                            is.pipe(os);    
+                        } catch (err) {
+                            throw err
                         }
                     }
-
-
-                    try {
-                        // is.pipe doesn't seem to handle exceptions properly
-                        // Need to check we can access files
-                        fs.accessSync(source, fs.R_OK);
-                        fs.accessSync(destPath, fs.W_OK);
-
-                        var is = fs.createReadStream(source);
-                        var os = fs.createWriteStream(destFile);
-                        is.on('end', function() {
-                            node.send(msg);
-                        });
-
-                        is.pipe(os);
-                        return;
-
-                    } catch (e) {
-                        node.error(e, msg);
-                        return;
-                    }
                 }
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: `Copy done`
+                });
+            } catch (err) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: `Error ${err.code ? err.code: ''} on copy file`
+                });
+                done(err);
             }
-            return;
         });
     }
 
@@ -269,54 +236,61 @@ module.exports = function(RED) {
         var node = this;
 
         node.name = n.name;
-        node.path = n.path || "";
-        node.pathType = n.pathType || "str";
-        node.filename = n.filename || "";
-        node.filenameType = n.filenameType || "msg";
+        node.source = n.source || "";
+        node.sourceType = n.sourceType || "msg";
 
-        node.on("input", function(msg) {
+        node.on("input", function(msg,send,done) {
 
-            var error = false;
+            node.status({
+                fill: "yellow",
+                shape: "dot",
+                text: `Deleting ...`
+            });
 
-            var pathname = RED.util.evaluateNodeProperty(node.path, node.pathType, node, msg);
-            if ((pathname.length > 0) && (pathname.lastIndexOf(path.sep) != pathname.length-1)) {
-                pathname += path.sep;
-            }
+            const source = RED.util.evaluateNodeProperty(node.source, node.sourceType, node, msg);
 
-            var filename = RED.util.evaluateNodeProperty(node.filename, node.filenameType, node, msg);
-
-            var deleteFile = function(file) {
+            const deleteFile = function(file) {
                 try {
-                    fs.unlinkSync(pathname + file);
-                } catch (e) {
-                    if (e.code === 'EISDIR') {
+                    fs.unlinkSync(file);
+                } catch (err) {
+                    if (err.code === 'EISDIR') {
                         // rmdir instead
                         try {
-                            fs.rmdirSync(pathname + file);
-                        } catch (ed) {
-                            if (ed.code != 'ENOENT') {
+                            fs.rmdirSync(file);
+                        } catch (err) {
+                            if (err.code != 'ENOENT') {
                                 // deleting non-existent directory is OK
-                                node.error(ed, msg);
-                                error = true;
+                                throw err
                             }
                         }
-                    } else if (e.code != 'ENOENT') {
+                    } else if (err.code != 'ENOENT') {
                         // Deleting a non-existent file is not an error
-                        node.error(e, msg);
-                        error = true;
+                        throw err
                     }
                 }
             };
 
+            try {
+                if (Array.isArray(source)) {
+                    source.forEach(deleteFile);
+                } else {
+                    deleteFile(source);
+                }
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: `Delete done`
+                });
+                send(msg)
+                done()
 
-            if (Array.isArray(filename)) {
-                    filename.forEach(deleteFile);
-            } else {
-                deleteFile(filename);
-            }
-
-            if (!error) {
-                node.send(msg);
+            } catch (err) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: `Error ${err.code ? err.code: ''} on delete file`
+                });
+                done(err);
             }
         });
     }
@@ -591,34 +565,55 @@ module.exports = function(RED) {
         node.filterType = n.filterType || "msg";
         node.dir = n.dir || "";
         node.dirType = n.dirType || "msg";
+        node.completeDir = n.completeDir || false;
 
-        node.on("input", function(msg) {
-
-            var pathname = RED.util.evaluateNodeProperty(node.path, node.pathType, node, msg);
-            if ((pathname.length > 0) && (pathname.lastIndexOf(path.sep) != pathname.length-1)) {
-                pathname += path.sep;
-            }
-
-            var filter = RED.util.evaluateNodeProperty(node.filter, node.filterType, node, msg);
-
-            var dir;
-
-            filter = filter.replace('.', '\\.');
-            filter = filter.replace('*', '.*');
-            filter = new RegExp(filter);
-
+        node.on("input", function(msg,send,done) {
             try {
-                dir = fs.readdirSync(pathname);
-                dir = dir.filter(function(value) { return filter.test(value); });
-            } catch (e) {
-                node.error(e, msg);
-                return;
+                node.status({
+                    fill: "yellow",
+                    shape: "dot",
+                    text: `Read ...`
+                })
+
+                let pathname = RED.util.evaluateNodeProperty(node.path, node.pathType, node, msg);
+                if ((pathname.length > 0) && (pathname.lastIndexOf(path.sep) != pathname.length-1)) {
+                    pathname += path.sep;
+                }
+
+                let filter = RED.util.evaluateNodeProperty(node.filter, node.filterType, node, msg);
+
+                filter = filter.replace('.', '\\.');
+                filter = filter.replace('*', '.*');
+                filter = new RegExp(filter);
+
+                try {
+                    let dir = fs.readdirSync(pathname)
+
+                    if (node.completeDir) dir = dir.map((file)=> pathname + file)
+                    
+                    dir = dir.filter((file) => filter.test(file))
+                    setProperty(node, msg, node.dir, node.dirType, dir)
+
+                    node.status({
+                        fill: "green",
+                        shape: "dot",
+                        text: `Read done`
+                    });
+    
+                    send(msg)
+                    done()
+
+                } catch (err) {
+                    done(err)
+                }
+            } catch (err) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: `Error ${err.code ? err.code: ''} on reading directory`
+                });
+                done(err)  
             }
-
-            setProperty(node, msg, node.dir, node.dirType, dir);
-
-            node.send(msg);
-
         });
     }
 
@@ -637,8 +632,13 @@ module.exports = function(RED) {
         node.fullpath = n.fullpath || "";
         node.fullpathType = n.fullpathType || "msg";
 
-        node.on("input", function(msg) {
+        node.on("input", function(msg,send,done) {
 
+            node.status({
+                fill: "yellow",
+                shape: "dot",
+                text: `Create directory ...`
+            });
 
             var pathname = RED.util.evaluateNodeProperty(node.path, node.pathType, node, msg);
             if ((pathname.length > 0) && (pathname.lastIndexOf(path.sep) != pathname.length-1)) {
@@ -647,22 +647,36 @@ module.exports = function(RED) {
             pathname += RED.util.evaluateNodeProperty(node.dirname, node.dirnameType, node, msg);
 
             try {
-                fs.mkdirSync(pathname, node.mode);
-            } catch (e) {
-                // Creating an existing directory is not an error
-                if (e.code != 'EEXIST') {
-                    node.error(e, msg);
-                    return;
+                try {
+                    fs.mkdirSync(pathname, node.mode)
+                } catch (err) {
+                    // Creating an existing directory is not an error
+                    if (err.code != 'EEXIST') {
+                       throw err
+                    }
                 }
+
+                if (node.fullpath.length > 0) {
+                    setProperty(node, msg, node.fullpath, node.fullpathType, pathname);
+                }
+    
+                node.status({
+                    fill: "green",
+                    shape: "dot",
+                    text: `Directory created`
+                });
+
+                send(msg);
+                done()
+
+            } catch (err) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: `Error ${err.code ? err.code: ''} on create directory`
+                });
+                done(err)
             }
-
-
-            if (node.fullpath.length > 0) {
-                setProperty(node, msg, node.fullpath, node.fullpathType, pathname);
-            }
-
-            node.send(msg);
-
         });
     }
 
