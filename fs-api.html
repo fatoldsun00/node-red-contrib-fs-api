@@ -4,96 +4,63 @@
         color: '#767432',
         defaults: {
             name: {value:""},
-	    sourcePath: {value: ""},
-            sourcePathType: {value: "str"},
-	    sourceFilename: {value: "", required: true},
-            sourceFilenameType: {value: "msg"},
-            destPath: {value: "", required: true},
-            destPathType: {value: "str"},
-            destFilename: {value: "", required: true},
-            destFilenameType: {value: "msg"},
-            link: {value:false}
+	        source: {value: ""},
+            sourceType: {value: "msg"},
+	        //sourceFilename: {value: "", required: true},
+            //sourceFilenameType: {value: "msg"},
+            destination: {value: "", required: true},
+            destinationType: {value: "msg"},
+            //destFilename: {value: "", required: true},
+            //destFilenameType: {value: "msg"},
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-arrows-alt",
         label: function() {
             return this.name||"File Move";
         },
         oneditprepare: function() {
-            if (!this.sourcePathType) {
-                this.sourcePathType = 'str';
+            if (!this.sourceType) {
+                this.sourceType = 'msg';
             }
-            $("#node-input-sourcePath").typedInput({
+            $("#node-input-source").typedInput({
                 default: 'str',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-sourcePathType")
+                types: ['str','msg','flow','global','jsonata'],
+                typeField: $("#node-input-sourceType")
             });
 
-            if (!this.sourceFilenameType) {
-                this.sourceFilenameType = 'msg';
+            if (!this.destinationType) {
+                this.destinationType = 'msg';
             }
-            $("#node-input-sourceFilename").typedInput({
-                default: 'msg',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-sourceFilenameType")
-            });
-
-            if (!this.destPathType) {
-                this.destPathType = 'str';
-            }
-            $("#node-input-destPath").typedInput({
+            $("#node-input-destination").typedInput({
                 default: 'str',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-destPathType")
+                types: ['str','msg','flow','global','jsonata'],
+                typeField: $("#node-input-destinationType")
             });
-
-            if (!this.destFilenameType) {
-                this.destFilenameType = 'msg';
-            }
-            $("#node-input-destFilename").typedInput({
-                default: 'msg',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-destFilenameType")
-            });
-
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-api-move">
+<script type="text/html" data-template-name="fs-api-move">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-sourcePath"><i class="fa fa-folder"></i> Source Path</label>
-        <input type="text" id="node-input-sourcePath" placeholder="Path to move from" style="width:250px;">
-        <input type="hidden" id="node-input-sourcePathType">
+        <label for="node-input-source"><i class="fa fa-file"></i> Source Path</label>
+        <input type="text" id="node-input-source" placeholder="Path of file source to move">
+        <input type="hidden" id="node-input-sourceType">
     </div>
+    
     <div class="form-row">
-        <label for="node-input-sourceFilename"><i class="fa fa-file"></i> Source Filename</label>
-        <input type="text" id="node-input-sourceFilename" placeholder="Old filename" style="width:250px;">
-        <input type="hidden" id="node-input-sourceFilenameType">
+        <label for="node-input-destination"><i class="fa fa-file"></i> Destination Path</label>
+        <input type="text" id="node-input-destination" placeholder="Path of file source to move">
+        <input type="hidden" id="node-input-destinationType">
     </div>
-    <div class="form-row">
-        <label for="node-input-destPath"><i class="fa fa-folder"></i> Destination Path</label>
-        <input type="text" id="node-input-destPath" placeholder="Path to move to" style="width:250px;">
-        <input type="hidden" id="node-input-destPathType">
-    </div>
-    <div class="form-row">
-        <label for="node-input-destFilename"><i class="fa fa-file"></i> Destination Filename</label>
-        <input type="text" id="node-input-destFilename" placeholder="New filename" style="width:250px;">
-        <input type="hidden" id="node-input-destFilenameType">
-    </div>
-    <div class="form-row">
-        <label for="node-input-link"><i class="fa fa-link"></i> Link File</label>
-        <input type="checkbox" value="false" id="node-input-link" style="display: inline-block; width: auto; vertical-align: top;"/>
-    </div>
-
+    
 </script>
 
-<script type="text/x-red" data-help-name="fs-api-move">
+<script type="text/html" data-help-name="fs-api-move">
 
     <p>Move or rename a file in the local filesystem.</p>
 
@@ -103,16 +70,11 @@
             <span class="property-type">string</span>
         </dt>
         <dd>Name of node to be displayed in editor</dd>
-        <dt>source path<span class="property-type">string</span></dt>
-        <dd>Path of directory containing file to be moved</dd>
-        <dt>source filename<span class="property-type">string</span></dt>
-        <dd>Name of file to be moved</dd>
-        <dt>destination path<span class="property-type">string</span></dt>
-        <dd>Path of directory the file is to be moved to</dd>
-        <dt>destination filename<span class="property-type">string</span></dt>
+        <dt>source file<span class="property-type">string </span></dt>
+        <dd>Path of file to be moved (i.e. /home/test.txt, c:\\users\\toto\\documents\\test.txt)</dd>
+        <dt>destination file<span class="property-type">string</span></dt>
+        <dd>Path of file destination (i.e. /home/new/test.txt, c:\\users\\toto\\documents\\new\\test.txt)</dd>
         <dd>New name to be used for file</dd>
-        <dt>link file<span class="property-type">boolean</span></dt>
-        <dd><i>Deprecated</i>: Link file in destination<dd>
     </dl>
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -124,12 +86,9 @@
     </dl>
 
     <h3>Details</h3>
-    <p>Moves, renames or links a file from the source to the destination.</p>
-    <p>Specified file is moved from the source path to the destination path and
-    renamed from the source filename to the destination filename.</p>
+    <p>Move / rename a file from the source to the destination.</p>
+    <p>Specified file is moved from the source path to the destination path and</p>
     <p><b>Warning:</b>This node will always overwrite the destination.</p>
-    <p>If <i>Link Files</i> is set, destination file will be a symbolic link to the source file. - DEPRECATED: Use
-    File Copy node instead.</p>
     <p>Message is actioned and passed through unchanged if move/rename is successful.</p>
 </script>
 
@@ -139,89 +98,62 @@
         color: '#767432',
         defaults: {
             name: {value:""},
-	    sourcePath: {value: ""},
-            sourcePathType: {value: "str"},
-	    sourceFilename: {value: "", required: true},
-            sourceFilenameType: {value: "msg"},
-            destPath: {value: "", required: true},
-            destPathType: {value: "str"},
-            destFilename: {value: "", required: true},
-            destFilenameType: {value: "msg"},
+	        source: {value: ""},
+            sourceType: {value: "str"},
+	        //sourceFilename: {value: "", required: true},
+            //sourceFilenameType: {value: "msg"},
+            destination: {value: "", required: true},
+            destinationType: {value: "str"},
+            //destFilename: {value: "", required: true},
+            //destFilenameType: {value: "msg"},
             link: {value:false},
             overwrite: {value: false}
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-copy",
         label: function() {
             return this.name||"File Copy";
         },
         oneditprepare: function() {
-            if (!this.sourcePathType) {
-                this.sourcePathType = 'str';
+            if (!this.sourceType) {
+                this.sourceType = 'str';
             }
-            $("#node-input-sourcePath").typedInput({
+            $("#node-input-source").typedInput({
                 default: 'str',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-sourcePathType")
+                types: ['str','msg','flow','global','jsonata'],
+                typeField: $("#node-input-sourceType")
             });
 
-            if (!this.sourceFilenameType) {
-                this.sourceFilenameType = 'msg';
+            if (!this.destinationType) {
+                this.destinationType = 'str';
             }
-            $("#node-input-sourceFilename").typedInput({
-                default: 'msg',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-sourceFilenameType")
-            });
-
-            if (!this.destPathType) {
-                this.destPathType = 'str';
-            }
-            $("#node-input-destPath").typedInput({
+            $("#node-input-destination").typedInput({
                 default: 'str',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-destPathType")
+                types: ['str','msg','flow','global','jsonata'],
+                typeField: $("#node-input-destinationType")
             });
-
-            if (!this.destFilenameType) {
-                this.destFilenameType = 'msg';
-            }
-            $("#node-input-destFilename").typedInput({
-                default: 'msg',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-destFilenameType")
-            });
-
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-api-copy">
+<script type="text/html" data-template-name="fs-api-copy">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-sourcePath"><i class="fa fa-folder"></i> Source Path</label>
-        <input type="text" id="node-input-sourcePath" placeholder="Path to copy from" style="width:250px;">
-        <input type="hidden" id="node-input-sourcePathType">
+        <label for="node-input-source"><i class="fa fa-folder"></i> Source Path</label>
+        <input type="text" id="node-input-source" placeholder="Path of file to copy">
+        <input type="hidden" id="node-input-sourceType">
     </div>
+    
     <div class="form-row">
-        <label for="node-input-sourceFilename"><i class="fa fa-file"></i> Source Filename</label>
-        <input type="text" id="node-input-sourceFilename" placeholder="Source filename" style="width:250px;">
-        <input type="hidden" id="node-input-sourceFilenameType">
+        <label for="node-input-destination"><i class="fa fa-folder"></i> Destination Path</label>
+        <input type="text" id="node-input-destination" placeholder="Path of copied file" >
+        <input type="hidden" id="node-input-destinationType">
     </div>
-    <div class="form-row">
-        <label for="node-input-destPath"><i class="fa fa-folder"></i> Destination Path</label>
-        <input type="text" id="node-input-destPath" placeholder="Path to copy to" style="width:250px;">
-        <input type="hidden" id="node-input-destPathType">
-    </div>
-    <div class="form-row">
-        <label for="node-input-destFilename"><i class="fa fa-file"></i> Destination Filename</label>
-        <input type="text" id="node-input-destFilename" placeholder="New filename" style="width:250px;">
-        <input type="hidden" id="node-input-destFilenameType">
-    </div>
+    
     <div class="form-row">
         <label for="node-input-link"><i class="fa fa-link"></i> Link</label>
         <input type="checkbox" value="false" id="node-input-link" style="display: inline-block; width: auto; vertical-align: top;"/>
@@ -233,7 +165,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="fs-api-copy">
+<script type="text/html" data-help-name="fs-api-copy">
     <p>Copies or links a file from the source to the destination.</p>
 
     <h3>Properties</h3>
@@ -242,14 +174,10 @@
             <span class="property-type">string</span>
         </dt>
         <dd>Name of node to be displayed in editor</dd>
-        <dt>source path<span class="property-type">string</span></dt>
-        <dd>Path of directory containing file to be copied</dd>
-        <dt>source filename<span class="property-type">string</span></dt>
-        <dd>Name of file to be copied</dd>
-        <dt>destination path<span class="property-type">string</span></dt>
-        <dd>Path of directory the file is to be copied to</dd>
-        <dt>destination filename<span class="property-type">string</span></dt>
-        <dd>New name to be used for file</dd>
+        <dt>source file<span class="property-type">string </span></dt>
+        <dd>Path of file to be copied (i.e. /home/test.txt, c:\\users\\toto\\documents\\test.txt)</dd>
+        <dt>destination file<span class="property-type">string</span></dt>
+        <dd>Path of file destination (i.e. /home/test_copy.txt, c:\\users\\toto\\documents\\test_copy.txt)</dd>
         <dt>link<span class="property-type">boolean</span></dt>
         <dd>Link file in destination<dd>
         <dt>overwrite<span class="property-type">boolean</span></dt>
@@ -278,14 +206,12 @@
         color: '#767432',
         defaults: {
             name: {value:""},
-	    path: {value: ""},
-            pathType: {value: "str"},
-	    filename: {value: "", required: true},
-            filenameType: {value: "msg"}
+	        source: {value: ""},
+            sourceType: {value: "msg"}
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-trash-o",
         label: function() {
             return this.name||"File Delete";
         },
@@ -293,43 +219,28 @@
             if (!this.pathType) {
                 this.pathType = 'str';
             }
-            $("#node-input-path").typedInput({
-                default: 'str',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-pathType")
-            });
-
-            if (!this.filenameType) {
-                this.filenameType = 'msg';
-            }
-            $("#node-input-filename").typedInput({
+            $("#node-input-source").typedInput({
                 default: 'msg',
-                types: ['str','msg','flow','global'],
-                typeField: $("#node-input-filenameType")
+                types: ['str','msg','flow','global','jsonata'],
+                typeField: $("#node-input-sourceType")
             });
-
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-api-delete">
+<script type="text/html" data-template-name="fs-api-delete">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-path"><i class="fa fa-folder"></i> Path</label>
-        <input type="text" id="node-input-path" placeholder="Path of file to delete" style="width:250px;">
-        <input type="hidden" id="node-input-pathType">
-    </div>
-    <div class="form-row">
-        <label for="node-input-filename"><i class="fa fa-file"></i> Filename</label>
-        <input type="text" id="node-input-filename" placeholder="File to delete" style="width:250px;">
-        <input type="hidden" id="node-input-filenameType">
+        <label for="node-input-source"><i class="fa fa-folder"></i> Source Path</label>
+        <input type="text" id="node-input-source" placeholder="Path of file to delete">
+        <input type="hidden" id="node-input-sourceType"> 
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-api-delete">
+<script type="text/html" data-help-name="fs-api-delete">
     <p>Deletes a file on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -337,10 +248,8 @@
             <span class="property-type">string</span>
         </dt>
         <dd>Name of node to be displayed in editor</dd>
-        <dt>source path<span class="property-type">string</span></dt>
-        <dd>Path of directory containing file to be deleted</dd>
-        <dt>source filename<span class="property-type">string|array of string</span></dt>
-        <dd>Name/s of file/s to be deleted</dd>
+        <dt>source file<span class="property-type">string | array of string</span></dt>
+        <dd>Path of file(s) to be delete (i.e. /home/test.txt, c:\\users\\toto\\documents\\test.txt)</dd>
     </dl>
     <h3>Inputs</h3>
     <dl class="message-properties">
@@ -352,7 +261,7 @@
     </dl>
 
     <h3>Details</h3>
-    <p>Deletes the specified files from the local filesystem. </p>
+    <p>Deletes the specified file</p>
     <p>If an array of filenames is passed
     in, such as from the file-ops-dir node, then each file will be deleted.</p>
 
@@ -376,7 +285,7 @@
         },
         inputs:1,
         outputs:2,
-        icon: "file.png",
+        icon: "font-awesome/fa-unlock",
         label: function() {
             return this.name||"File Access";
         },
@@ -482,7 +391,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-weight-hanging",
         label: function() {
             return this.name||"File Size";
         },
@@ -586,7 +495,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-line-chart",
         label: function() {
             return this.name||"File Stats";
         },
@@ -691,7 +600,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-chain",
         label: function() {
             return this.name||"Get Link";
         },
@@ -900,16 +809,18 @@
         color: '#767432',
         defaults: {
             name: {value:""},
-	    path: {value: ""},
-            pathType: {value: "str"},
-	    filter: {value: "*"},
+	        path: {value: "payload", required: true},
+            pathType: {value: "msg"},
+	        filter: {value: "*"},
             filterType: {value: "str"},
-	    dir: {value: "files", required: true},
-            dirType: {value: "msg"}
+	        dir: {value: "payload", required: true},
+            dirType: {value: "msg"},
+            completeDir: {value:false},
+
         },
         inputs:1,
         outputs:1,
-        icon: "db.png",
+        icon: "font-awesome/fa-list-alt",
         label: function() {
             return this.name||"Directory";
         },
@@ -918,8 +829,8 @@
                 this.pathType = 'str';
             }
             $("#node-input-path").typedInput({
-                default: 'str',
-                types: ['str','msg','flow','global'],
+                default: 'msg',
+                types: ['str','msg','flow','global','jsonata'],
                 typeField: $("#node-input-pathType")
             });
 
@@ -928,7 +839,7 @@
             }
             $("#node-input-filter").typedInput({
                 default: 'msg',
-                types: ['str','msg','flow','global'],
+                types: ['str','msg','flow','global','jsonata'],
                 typeField: $("#node-input-filterType")
             });
 
@@ -945,29 +856,33 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="fs-api-dir">
+<script type="text/html" data-template-name="fs-api-dir">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
         <label for="node-input-path"><i class="fa fa-folder"></i> Path</label>
-        <input type="text" id="node-input-path" placeholder="Path" style="width:250px;">
+        <input type="text" id="node-input-path" placeholder="Path">
         <input type="hidden" id="node-input-pathType">
     </div>
     <div class="form-row">
         <label for="node-input-filter"><i class="fa fa-filter"></i> Filter</label>
-        <input type="text" id="node-input-filter" placeholder="Filename filter" style="width:250px;">
+        <input type="text" id="node-input-filter" placeholder="Filename filter">
         <input type="hidden" id="node-input-filterType">
     </div>
     <div class="form-row">
-        <label for="node-input-dir"><i class="fa fa-edit"></i> Directory Property</label>
-        <input type="text" id="node-input-dir" placeholder="Property to record directory files" style="width:250px;">
+        <label for="node-input-dir"><i class="fa fa-edit"></i> Fisted files output</label>
+        <input type="text" id="node-input-dir" placeholder="where stock output">
         <input type="hidden" id="node-input-dirType">
+    </div>
+    <div class="form-row">
+        <label for="node-input-completeDir"><i class="fa fa-sitemap"></i> Return only file name</label>
+        <input type="checkbox" value="false" id="node-input-completeDir" style="display: inline-block; width: auto; vertical-align: top;"/>
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="fs-api-dir">
+<script type="text/html" data-help-name="fs-api-dir">
     <p>Lists the files in a directory on host filesystem.</p>
     <h3>Properties</h3>
     <dl class="message-properties">
@@ -1014,7 +929,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "font-awesome/fa-plus",
         label: function() {
             return this.name||"Make Directory";
         },
